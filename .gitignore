@@ -9,6 +9,6 @@
 *.ind
 *.glo
 *.ilg
-physconst_generate
+physconst
 *.dtx
 

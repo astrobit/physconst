@@ -1,17 +1,19 @@
-files=$(patsubst %.dtx,%.pdf,$(wildcard *.dtx))
-pkgname=$(patsubst %.dtx,%,$(wildcard *.dtx))
-all: $(files)
+pkgname=$(patsubst %.ins,%,$(wildcard *.ins))
+all: $(pkgname).pdf
 
-%.pdf: %.dtx
-	-rm $(patsubst %.dtx,%.sty,$<)
-	latex $(patsubst %.dtx,%.ins,$<)
-	xelatex $<
-	makeindex -s gind.ist -o $(patsubst %.dtx,%.ind,$<) $(patsubst %.dtx,%.idx,$<)
-	makeindex -s gglo.ist -o $(patsubst %.dtx,%.gls,$<) $(patsubst %.dtx,%.glo,$<)
-	xelatex $<
-	xelatex $<
+%.pdf: generator/%.cpp %.ins
+	cd generator && make
+	generator/$(pkgname)
+	-rm $(pkgname).sty
+	latex $(pkgname).ins
+	xelatex $(pkgname).dtx
+	makeindex -s gind.ist -o $(pkgname).ind $(pkgname).idx
+	makeindex -s gglo.ist -o $(pkgname).gls $(pkgname).glo
+	xelatex $(pkgname).dtx
+	xelatex $(pkgname).dtx
 
 clean:
+	cd generator && make clean
 	-rm *.pdf
 	-rm *.log
 	-rm *.out
@@ -22,6 +24,11 @@ clean:
 	-rm *.nav
 	-rm *.idx
 	-rm *.sty
+	-rm *.gls
+	-rm *.ilg
+	-rm *.ind
+	-rm *.glo
+	-rm *.dtx
 
 localinstall: all
 	mkdir -p /usr/share/texlive/texmf-local/tex/latex/$(pkgname)
