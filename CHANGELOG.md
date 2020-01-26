@@ -23,5 +23,15 @@
 ## [1.0.2] - 2020/01/25
 ### Changed
 - Switch compression of tarball to gzip to match requirement for CTAN
+## [1.0.2.a] - 2020/01/25
+- Same as 1.0.2
+## [1.0.2.b] - 2020/01/25
+### Added
+- Add changelog to distribution
+- Add disribution specific readme
+- Add disribution specific makefile
+### Changed
+- Update README to have clearer build, distribute, install, and uninstall instructions.
+- Distribute with .dtx instead of .sty
 
 

@@ -2,17 +2,13 @@ pkgname=$(patsubst %.ins,%,$(wildcard *.ins))
 TEXMFLOCAL = $(shell kpsewhich -var-value TEXMFLOCAL)
 TEXMFDIST = $(shell kpsewhich -var-value TEXMFDIST)
 
-.PHONY: all clean localinstall localuninstall localinstallcheck distinstall distuninstall distinstallcheck dist installcheck
+.PHONY: all clean localinstall localuninstall localinstallcheck distinstall distuninstall distinstallcheck installcheck
 
 all: $(pkgname).pdf
 
 .PRECIOUS: %.sty %.dtx %.pdf
 .DELETE_ON_ERROR:
 .NOTPARALLEL:
-
-%.dtx: generator/%.cpp %.ins
-	cd generator && make
-	generator/$(pkgname)
 
 %.sty: %.dtx %.ins
 	latex $(pkgname).ins
@@ -25,7 +21,6 @@ all: $(pkgname).pdf
 	xelatex $(pkgname).dtx
 
 clean:
-	cd generator && make clean
 	-rm *.pdf
 	-rm *.log
 	-rm *.out
@@ -93,33 +88,6 @@ distuninstall:
 	-rm -r $(TEXMFDIST)/tex/latex/$(pkgname)
 	-rm -r $(TEXMFDIST)/doc/latex/$(pkgname)
 	texhash
-
-%.tar: %.dtx %.pdf README.md CHANGELOG.md
-	mkdir -p $(pkgname)
-	cp $(pkgname).pdf $(pkgname)/.
-	cp $(pkgname).dtx $(pkgname)/.
-	cp $(pkgname).ins $(pkgname)/.
-	cp README.dist.md $(pkgname)/README.md
-	cp makefile.dist $(pkgname)/makefile
-	cp CHANGELOG.md $(pkgname)/.
-	tar -cvf $(pkgname).tar $(pkgname)
-	rm -r $(pkgname)
-
-%.tar.gz: %.tar
-	gzip -f $(pkgname).tar
- 
-%.zip: %.dtx %.pdf README.md CHANGELOG.md
-	mkdir -p $(pkgname)
-	cp $(pkgname).pdf $(pkgname)/.
-	cp $(pkgname).dtx $(pkgname)/.
-	cp $(pkgname).ins $(pkgname)/.
-	cp README.dist.md $(pkgname)/README.md
-	cp makefile.dist $(pkgname)/makefile
-	cp CHANGELOG.md $(pkgname)/.
-	zip -r $(pkgname).zip $(pkgname)
-	rm -r $(pkgname)
-
-dist: $(pkgname).tar.gz $(pkgname).zip
 
 #######################################################
 # checks - will be called recursively
