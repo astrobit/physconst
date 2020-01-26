@@ -60,7 +60,7 @@ The distributables contain the following:
 ```
 
 # Building the package
-## Linux / max
+## Linux / mac
 1. `make` to generate the package
 ## Windows or if make doesn't work
 
@@ -75,7 +75,7 @@ Instructions that might help can be for windows can be found at [this post on St
 1. Run `latex` of some form (e.g. `xelatex`) on `physunits.dtx` to get the right links and labels.
 
 # Installation
-## Linux (and mac?)
+## Linux / mac
 ### For a single project
 1. Build the package as described above.
 1. Copy the `physunits.sty` into your project where your `.tex` files are located.
@@ -97,7 +97,7 @@ Instructions that might help can be for windows can be found at [this post on St
 
 # Uninstallation
 
-## Linux (and mac?)
+## Linux / mac
 1. `sudo make localuninstall`
 
 ## Windows or if the above doesn't work for linux/max
@@ -109,7 +109,7 @@ Instructions that might help can be for windows can be found at [this post on St
 
 # Creating distributions
 
-## Linux / max
+## Linux / mac
 To create a disribution on linux (or mac?)
 1. Build the package as described above.
 1. `make dist` to generate the distributable tarball and zip file
