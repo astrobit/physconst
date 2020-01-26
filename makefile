@@ -39,7 +39,7 @@ clean:
 	-rm *.dtx
 	-rm $(pkgname).zip
 	-rm $(pkgname).tar
-	-rm $(pkgname).tar.bz2
+	-rm $(pkgname).tar.gz
 	-rm -r $(pkgname)
 
 localinstall: $(pkgname).pdf $(pkgname).sty 
@@ -77,7 +77,7 @@ dist: $(pkgname).pdf $(pkgname).sty
 	cp README.md $(pkgname)/.
 	cp CHANGELOG.md $(pkgname)/.
 	tar -cvf $(pkgname).tar $(pkgname)
-	bzip2 $(pkgname).tar
+	gzip $(pkgname).tar
 	zip $(pkgname).zip $(pkgname)
 	rm -r $(pkgname)
 
