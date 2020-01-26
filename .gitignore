@@ -11,4 +11,5 @@
 *.ilg
 physconst
 *.dtx
+*.out
 
