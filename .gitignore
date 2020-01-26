@@ -12,4 +12,8 @@
 physconst
 *.dtx
 *.out
+*.tar
+*.bz2
+*.zip
+*.gz
 
