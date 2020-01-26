@@ -59,10 +59,10 @@ The distributables contain the following:
     physconst.pdf           Usage documentation
 ```
 
-## Building the package
-### Linux / max
+# Building the package
+## Linux / max
 1. `make` to generate the package
-### Windows or if make doesn't work
+## Windows or if make doesn't work
 
 Instructions that might help can be for windows can be found at [this post on StackExchange](https://tex.stackexchange.com/questions/369921/loading-packages-with-ins-and-dtx-files).
 1. Compile the `.cpp` file into an executable. For this you will need a c++ compiler such as gnu-c++ or Microsoft Visual C++. Note the dependency on `xastro-1`.
@@ -73,21 +73,6 @@ Instructions that might help can be for windows can be found at [this post on St
 1. Run `makeindex -s gglo.ist -o $(pkgname).gls $(pkgname).glo`
 1. Run `latex` of some form (e.g. `xelatex`) on `physunits.dtx` to create the index
 1. Run `latex` of some form (e.g. `xelatex`) on `physunits.dtx` to get the right links and labels.
-
-## Creating distributions
-
-### Linux / max
-To create a disribution on linux (or mac?)
-1. Build the package as described above.
-1. `make dist` to generate the distributable tarball and zip file
-
-### Windows or if make doesn't work
-1. Build the package as described above.
-1. Create a directory named `physunits`
-1. Copy `physunits.ins`, `physunits.dtx`, `physunits.pdf`, and `CHANGELOG.md` into the directory
-1. Copy `README.dist.md` into the directory as `README.md`
-1. Copy `makefile.dist` into the directory as `makefile`
-1. Create a `.zip` file from the directory.
 
 # Installation
 ## Linux (and mac?)
@@ -121,3 +106,20 @@ To create a disribution on linux (or mac?)
 1. Figure out where your LaTeX local package documentation is installed.
 1. Delete the directory named `physunits` in that location.
 1. Run `texhash` or the equivalent to let LaTeX know the package is gone.
+
+# Creating distributions
+
+## Linux / max
+To create a disribution on linux (or mac?)
+1. Build the package as described above.
+1. `make dist` to generate the distributable tarball and zip file
+
+## Windows or if make doesn't work
+1. Build the package as described above.
+1. Create a directory named `physunits`
+1. Copy `physunits.ins`, `physunits.dtx`, `physunits.pdf`, and `CHANGELOG.md` into the directory
+1. Copy `README.dist.md` into the directory as `README.md`
+1. Copy `makefile.dist` into the directory as `makefile`
+1. Create a `.zip` file from the directory.
+
+

@@ -33,5 +33,7 @@
 ### Changed
 - Update README to have clearer build, distribute, install, and uninstall instructions.
 - Distribute with .dtx instead of .sty
+- Reordered build, install, distribute, and uninstall sections of the README
+- Pulled build up one level of headings in the README
 
 
