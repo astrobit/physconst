@@ -7,6 +7,98 @@
 #include <sstream>
 #include <cmath>
 #include <map>
+class ChangelogEntry
+{
+public:
+	int 		m_iYear;
+	int 		m_iMonth;
+	int 		m_iDay;
+	int 		m_iMajorVersion;
+	int 		m_iMinorVersion;
+	int 		m_iBuild;
+	std::string m_sDescription;
+
+	ChangelogEntry(
+		int 			i_iYear,
+		int 			i_iMonth,
+		int 			i_iDay,
+		int 			i_iMajorVersion,
+		int 			i_iMinorVersion,
+		int 			i_iBuild,
+		const char * 	i_psDescription)
+	{
+		m_iYear = i_iYear;
+		m_iMonth = i_iMonth;
+		m_iDay = i_iDay;
+		m_iMajorVersion = i_iMajorVersion;
+		m_iMinorVersion = i_iMinorVersion;
+		m_iBuild = i_iBuild;
+		m_sDescription = i_psDescription;
+	}
+
+	void print(FILE * io_fOut) const
+	{
+		fprintf(io_fOut,"%% \\changes{v%i.%i.%i}{%4i/%02i/%02i}{%s}\n",
+			m_iMajorVersion, m_iMinorVersion, m_iBuild, m_iYear, m_iMonth,
+			m_iDay, m_sDescription.c_str());
+	}
+	void printBracketed(FILE * io_fOut) const
+	{
+		fprintf(io_fOut," [%4i/%02i/%02i v%i.%i.%i physconst package]\n",
+			m_iYear, m_iMonth, m_iDay,
+			m_iMajorVersion, m_iMinorVersion, m_iBuild
+			);
+	}
+};
+
+class ChangeLog
+{
+public:
+	std::vector<ChangelogEntry> m_vList;
+
+	ChangeLog(void)
+	{
+	}
+
+	ChangeLog(std::initializer_list<ChangelogEntry> i_cList) : m_vList(i_cList)
+	{
+	}
+
+	void print(FILE * io_fOut) const
+	{
+		for (auto iterI = m_vList.cbegin(); iterI != m_vList.cend(); iterI++)
+		{
+			iterI->print(io_fOut);
+		}
+	}
+	void printBracketed(FILE * io_fOut) const
+	{
+		ChangelogEntry cLast = m_vList.back();
+		cLast.printBracketed(io_fOut);
+	}
+	void version(FILE * io_fOut) const
+	{
+		ChangelogEntry cLast = m_vList.back();
+
+		fprintf(io_fOut,"%% \\DeclareRobustCommand{\\fileversion}{v%i.%i.%i}\n",cLast.m_iMajorVersion, cLast.m_iMinorVersion, cLast.m_iBuild);
+	}
+	void date(FILE * io_fOut) const
+	{
+		ChangelogEntry cLast = m_vList.back();
+		fprintf(io_fOut,"%% \\DeclareRobustCommand{\\filedate}{%i/%02i/%02i}\n",cLast.m_iYear, cLast.m_iMonth,cLast.m_iDay);
+	}
+	void add(const ChangelogEntry & i_cEntry)
+	{
+		m_vList.push_back(i_cEntry);
+	}
+};
+
+ChangeLog g_cChangelog(
+	{
+		ChangelogEntry(2020,1,25,1,0,0,"Initial version"),
+		ChangelogEntry(2020,1,25,1,0,1,"Add options section and fix formatting")
+	}
+);
 
 class Constant
 {
@@ -151,6 +243,9 @@ public:
 	}
 	void CodeMacro(FILE * io_fOut) const
 	{
+		fprintf(io_fOut,"%%\\iffalse\n");
+		fprintf(io_fOut,"%%<*package>\n");
+		fprintf(io_fOut,"%%\\fi\n");
 		fprintf(io_fOut,"%% \\begin{macro}{\\%s}\n",m_sMacroname.c_str());
 		fprintf(io_fOut,"%% |\\%s| is",m_sMacroname.c_str());
 
@@ -174,7 +269,7 @@ public:
 		std::ostringstream osValue;
 		osValue << std::scientific << std::setprecision(m_nPrint_Precision) << m_fValue;
 		std::string sValue = osValue.str();
-		fprintf(io_fOut,"\\DeclareRobustCommand{\\%s}{\\ensuremath{%%\n",m_sMacroname.c_str());
+		fprintf(io_fOut,"\\DeclareRobustCommand{\\%s}{%%\n\\ensuremath{%%\n",m_sMacroname.c_str());
 
 		const char * pValue_String = sValue.c_str();
 		while (pValue_String != nullptr && pValue_String[0] != 0 && pValue_String[0] != '.')
@@ -204,6 +299,9 @@ public:
 		fprintf(io_fOut,"%s}}\n",m_sUnits.c_str());
 
 		fprintf(io_fOut,"%%    \\end{macrocode}\n%% \\end{macro}\n%%\n");
+		fprintf(io_fOut,"%%\\iffalse\n");
+		fprintf(io_fOut,"%%</package>\n");
+		fprintf(io_fOut,"%%\\fi\n");
 	}
 };
 
@@ -218,6 +316,7 @@ public:
 	std::string m_sSource;
 	bool		m_bUnit_Independent;
 	bool		m_bHas_eV;
+	std::string m_sIndex_Name;
 
 	ConstantSet(double i_fValue_SI, 
 				double i_fValue_cgs, 
@@ -229,11 +328,14 @@ public:
 				const char * i_psSource,
 				const char * i_pUnitsSI,
 				const char * i_pUnitsCGS,
-				const char * i_pUnitsEV)
+				const char * i_pUnitsEV,
+				const char * i_pIndex_Name = nullptr)
 	{
 		m_sName = i_psName;
 		m_sSource = i_psSource;
 		m_bUnit_Independent = i_bUnit_Independent;
+		if (i_pIndex_Name != nullptr)
+			m_sIndex_Name = i_pIndex_Name;
 		m_bHas_eV = false;
 
 		const char * psCursorLast;
@@ -291,9 +393,12 @@ public:
 			iterI->DescribeMacro(io_fOut);
 		}
 	}
-	void DescribeUsefulMacro(FILE * io_fOut) const
+	void DescribeUsefulMacro(FILE * io_fOut, std::string i_sGroup) const
 	{
 		fprintf(io_fOut,"%% \\DescribeMacro{\\k%s}\n",m_sName.c_str());
+		if (!m_sIndex_Name.empty())
+			fprintf(io_fOut,"%% \\index{%s>%s|usage}\n",i_sGroup.c_str(),m_sIndex_Name.c_str());
+
 		fprintf(io_fOut,"%% |\\k%s| is",m_sName.c_str());
 
 		size_t nCharaters_On_Line = 9 + m_sName.size();
@@ -312,6 +417,8 @@ public:
 		if (m_bHas_eV)
 		{
 			fprintf(io_fOut,"%% \\DescribeMacro{\\keV%s}\n",m_sName.c_str());
+			if (!m_sIndex_Name.empty())
+				fprintf(io_fOut,"%% \\index{%s>%s>in eV|usage}\n",i_sGroup.c_str(),m_sIndex_Name.c_str());
 			fprintf(io_fOut,"%% |\\keV%s| is",m_sName.c_str());
 
 			size_t nCharaters_On_Line = 11 + m_sName.size();
@@ -337,6 +444,9 @@ public:
 
 		if (m_bUnit_Independent)
 		{
+			fprintf(io_fOut,"%%\\iffalse\n");
+			fprintf(io_fOut,"%%<*package>\n");
+			fprintf(io_fOut,"%%\\fi\n");
 			fprintf(io_fOut,"%% \\begin{macro}{\\k%s}\n",m_sName.c_str());
 			fprintf(io_fOut,"%% |\\k%s| is",m_sName.c_str());
 
@@ -352,16 +462,22 @@ public:
 				nCharaters_On_Line += (1 + iterI->size());
 			}
 			fprintf(io_fOut,".\n%%\n%%    \\begin{macrocode}\n");
-			fprintf(io_fOut,"\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\k%s}",m_sName.c_str());
-			fprintf(io_fOut,"{\\k@short@%s}\n",m_sName.c_str());
-			fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\k%s}",m_sName.c_str());
-			fprintf(io_fOut,"{\\k@full@%s}\n",m_sName.c_str());
+			fprintf(io_fOut,"\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\k%s}{%%\n",m_sName.c_str());
+			fprintf(io_fOut,"\\k@short@%s}\n",m_sName.c_str());
+			fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\k%s}{%%\n",m_sName.c_str());
+			fprintf(io_fOut,"\\k@full@%s}\n",m_sName.c_str());
 			fprintf(io_fOut,"\\fi\n");
 
 			fprintf(io_fOut,"%%    \\end{macrocode}\n%% \\end{macro}\n%%\n");
+			fprintf(io_fOut,"%%\\iffalse\n");
+			fprintf(io_fOut,"%%</package>\n");
+			fprintf(io_fOut,"%%\\fi\n");
 		}
 		else
 		{
+			fprintf(io_fOut,"%%\\iffalse\n");
+			fprintf(io_fOut,"%%<*package>\n");
+			fprintf(io_fOut,"%%\\fi\n");
 			fprintf(io_fOut,"%% \\begin{macro}{\\k%s}\n",m_sName.c_str());
 			fprintf(io_fOut,"%% |\\k%s| is",m_sName.c_str());
 
@@ -377,20 +493,26 @@ public:
 				nCharaters_On_Line += (1 + iterI->size());
 			}
 			fprintf(io_fOut,".\n%%\n%%    \\begin{macrocode}\n");
-			fprintf(io_fOut,"\\ifx\\cgsunits\\undefined\n\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\k%s}",m_sName.c_str());
-			fprintf(io_fOut,"{\\k@SI@short@%s}\n",m_sName.c_str());
-			fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\k%s}",m_sName.c_str());
-			fprintf(io_fOut,"{\\k@SI@full@%s}\n",m_sName.c_str());
-			fprintf(io_fOut,"\\fi\n\\else\n\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\k%s}",m_sName.c_str());
-			fprintf(io_fOut,"{\\k@cgs@short@%s}\n",m_sName.c_str());
-			fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\k%s}",m_sName.c_str());
-			fprintf(io_fOut,"{\\k@cgs@full@%s}\n",m_sName.c_str());
+			fprintf(io_fOut,"\\ifx\\cgsunits\\undefined\n\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\k%s}{%%\n",m_sName.c_str());
+			fprintf(io_fOut,"\\k@SI@short@%s}\n",m_sName.c_str());
+			fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\k%s}{%%\n",m_sName.c_str());
+			fprintf(io_fOut,"\\k@SI@full@%s}\n",m_sName.c_str());
+			fprintf(io_fOut,"\\fi\n\\else\n\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\k%s}{%%\n",m_sName.c_str());
+			fprintf(io_fOut,"\\k@cgs@short@%s}\n",m_sName.c_str());
+			fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\k%s}{%%\n",m_sName.c_str());
+			fprintf(io_fOut,"\\k@cgs@full@%s}\n",m_sName.c_str());
 			fprintf(io_fOut,"\\fi\n\\fi\n");
 
 			fprintf(io_fOut,"%%    \\end{macrocode}\n%% \\end{macro}\n%%\n");
+			fprintf(io_fOut,"%%\\iffalse\n");
+			fprintf(io_fOut,"%%</package>\n");
+			fprintf(io_fOut,"%%\\fi\n");
 
 			if (m_bHas_eV)
 			{
+				fprintf(io_fOut,"%%\\iffalse\n");
+				fprintf(io_fOut,"%%<*package>\n");
+				fprintf(io_fOut,"%%\\fi\n");
 				fprintf(io_fOut,"%% \\begin{macro}{\\keV%s}\n",m_sName.c_str());
 				fprintf(io_fOut,"%% |\\keV%s| is",m_sName.c_str());
 
@@ -406,13 +528,16 @@ public:
 					nCharaters_On_Line += (1 + iterI->size());
 				}
 				fprintf(io_fOut,".\n%%\n%%    \\begin{macrocode}\n");
-				fprintf(io_fOut,"\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\keV%s}",m_sName.c_str());
-				fprintf(io_fOut,"{\\k@eV@short@%s}\n",m_sName.c_str());
-				fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\keV%s}",m_sName.c_str());
-				fprintf(io_fOut,"{\\k@eV@full@%s}\n",m_sName.c_str());
+				fprintf(io_fOut,"\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\keV%s}{%%\n",m_sName.c_str());
+				fprintf(io_fOut,"\\k@eV@short@%s}\n",m_sName.c_str());
+				fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\keV%s}{%%\n",m_sName.c_str());
+				fprintf(io_fOut,"\\k@eV@full@%s}\n",m_sName.c_str());
 				fprintf(io_fOut,"\\fi\n");
 
 				fprintf(io_fOut,"%%    \\end{macrocode}\n%% \\end{macro}\n%%\n");
+				fprintf(io_fOut,"%%\\iffalse\n");
+				fprintf(io_fOut,"%%</package>\n");
+				fprintf(io_fOut,"%%\\fi\n");
 			}
 		}
 	}
@@ -461,7 +586,7 @@ void Generate(const std::vector<GroupContainer > & i_vGroups)
 	fprintf(fileOut,"%%<package>\\NeedsTeXFormat{LaTeX2e}[1994/06/01]\n");
 	fprintf(fileOut,"%%<package> \\ProvidesPackage{physconst}\n");
 	fprintf(fileOut,"%%<*package>\n");
-	fprintf(fileOut,"    [2020/01/25 v1.0 Physical constants package]\n");
+	g_cChangelog.printBracketed(fileOut);
 	fprintf(fileOut,"%%</package>\n");
 	fprintf(fileOut,"%%<package>\\RequirePackage{physunits}\n");
 	fprintf(fileOut,"%%<package>\\DeclareOption{shortconst}{ \\typeout{physconst: reduced precision}%%\n");
@@ -474,11 +599,12 @@ void Generate(const std::vector<GroupContainer > & i_vGroups)
 	fprintf(fileOut,"%%<package>\\ProcessOptions\\relax\n");
 	fprintf(fileOut,"%%<*driver>\n");
 	fprintf(fileOut,"\\documentclass{ltxdoc}\n");
-	fprintf(fileOut,"\\usepackage{float}\n");
-	fprintf(fileOut,"\\usepackage{tikz}\n");
 	fprintf(fileOut,"\\usepackage{xcolor}\n");
 	fprintf(fileOut,"\\usepackage{mdframed}\n");
 	fprintf(fileOut,"\\usepackage{physconst}\n");
+	fprintf(fileOut,"\\usepackage{imakeidx}\n");
+	fprintf(fileOut,"\\makeindex[columns=2]\n");
+	fprintf(fileOut,"\\usepackage[backref]{hyperref}\n");
 	fprintf(fileOut,"\\EnableCrossrefs\n");
 	fprintf(fileOut,"\\CodelineIndex\n");
 	fprintf(fileOut,"\\RecordChanges\n");
@@ -490,8 +616,6 @@ void Generate(const std::vector<GroupContainer > & i_vGroups)
 	fprintf(fileOut,"\\end{document}\n");
 	fprintf(fileOut,"%%</driver>\n");
 	fprintf(fileOut,"%% \\fi\n");
-	fprintf(fileOut,"%%\n");
-	fprintf(fileOut,"%% \\CheckSum{0}\n");
 	fprintf(fileOut,"%%\n");
 	fprintf(fileOut,"%% \\CharacterTable\n");
 	fprintf(fileOut,"%%  {Upper-case    \\A\\B\\C\\D\\E\\F\\G\\H\\I\\J\\K\\L\\M\\N\\O\\P\\Q\\R\\S\\T\\U\\V\\W\\X\\Y\\Z\n");
@@ -509,18 +633,20 @@ void Generate(const std::vector<GroupContainer > & i_vGroups)
 	fprintf(fileOut,"%%   Grave accent  \\`     Left brace    \\{     Vertical bar  \\|\n");
 	fprintf(fileOut,"%%   Right brace   \\}     Tilde         \\~}\n");
 	fprintf(fileOut,"%%\n");
-	fprintf(fileOut,"%% \\changes{v1.0}{2020/01/25}{Initial version}\n");
+	g_cChangelog.print(fileOut);
 	fprintf(fileOut,"%%\n");
 	fprintf(fileOut,"%% \\GetFileInfo{physconst.dtx}\n");
-	fprintf(fileOut,"%% \\def\\fileversion{v1.0}\n");
-	fprintf(fileOut,"%% \\def\\filedate{2020/01/25}\n");
+	g_cChangelog.version(fileOut);
+	g_cChangelog.date(fileOut);
 	fprintf(fileOut,"%%\n");
-	fprintf(fileOut,"%% \\DoNotIndex{\\DeclareRobustCommand,\\newenvironment,\\DeclareRobustCommand,\\left,\\right,\\textbf,\\mathrm}\n");
+	fprintf(fileOut,"%% \\DoNotIndex{\\DeclareRobustCommand,\\newenvironment,\\DeclareRobustCommand%%\n%% ,\\left,\\right,\\textbf,\\mathrm}\n");
 	fprintf(fileOut,"%%\n");
-	fprintf(fileOut,"%% \\title{The \\textsf{physconst} package\\thanks{This document corresponds to \\textsf{physconst}~\\fileversion, dated \\filedate.}}\n");
+	fprintf(fileOut,"%% \\title{The \\textsf{physconst} package\\thanks{This document corresponds to %%\n%% \\textsf{physconst}~\\fileversion, dated \\filedate.}}\n");
 	fprintf(fileOut,"%% \\author{Brian W. Mulligan \\\\ \\texttt{bwmulligan@astronaos.com}}\n");
 	fprintf(fileOut,"%%\n");
 	fprintf(fileOut,"%% \\maketitle\n");
+	fprintf(fileOut,"%% \\setlength{\\parindent}{0em}\n");
+	fprintf(fileOut,"%% \\setlength{\\parskip}{1em}\n");
 	fprintf(fileOut,"%%\n");
 	fprintf(fileOut,"%% \\section{Introduction}\n");
 	fprintf(fileOut,"%%\n");
@@ -538,6 +664,24 @@ void Generate(const std::vector<GroupContainer > & i_vGroups)
 	fprintf(fileOut,"%% astronomical objects, whose values are taken from their current wikipedia\n");
 	fprintf(fileOut,"%% entries. If you have an interest and/or need for more reliable data, \n");
 	fprintf(fileOut,"%% please contact me.\n");
+	fprintf(fileOut,"%%\n%%\\subsection{Options}\n%%\n");
+	fprintf(fileOut,"%% There are three options available: |shortconst|, |cgs|, and \n");
+	fprintf(fileOut,"%% |unseparatedecimals|.\n");
+	fprintf(fileOut,"%% They can be invoked when the package is declared, e.g.\\\\ \n");
+	fprintf(fileOut,"%% |\\usepackage[shortconst]{physconst}|.\n");
+	fprintf(fileOut,"%%\n");
+	fprintf(fileOut,"%% |shortconst| will reduce the precision to 3 digits for all constants. This\n");
+	fprintf(fileOut,"%% is intended when you don't want to have the details of the constants, just\n");
+	fprintf(fileOut,"%% the general value (e.g. $1.60\\times10^{-19}\\Coulomb$ instead of \n");
+	fprintf(fileOut,"%% $1.602\\,176\\,634\\times10^{-19}\\Coulomb$).\n");
+	fprintf(fileOut,"%%\n");
+	fprintf(fileOut,"%% |cgs| will provide all constants in cgs, i.e. the units used in astronomy.\n");
+	fprintf(fileOut,"%%\n");
+	fprintf(fileOut,"%% |unseparatedecimals| is for situations when you don't want spaces in the\n");
+	fprintf(fileOut,"%% decimal portion of full precision constants. E.g. the elementary charge \n");
+	fprintf(fileOut,"%% would appear as $1.602176634\\times10^{-19}\\Coulomb$ instead of\n");
+	fprintf(fileOut,"%% $1.602\\,176\\,634\\times10^{-19}\\Coulomb$. (notice the gaps between digits\n");
+	fprintf(fileOut,"%% in the latter.\n");
 	fprintf(fileOut,"%%\n%%\\subsection{Macros}\n%%\n");
 	fprintf(fileOut,"%%\n%%\\subsection{Normal Macros}\n%%\n");
 	fprintf(fileOut,"%% The normal macros are the ones that you will typically use, whose values are\n");
@@ -554,9 +698,10 @@ void Generate(const std::vector<GroupContainer > & i_vGroups)
 	for (auto iterI = i_vGroups.cbegin(); iterI != i_vGroups.cend(); iterI++)
 	{
 		fprintf(fileOut,"%%\n%%\\subsubsection{%s}\n%%\n",iterI->m_sGroup.c_str());
+		fprintf(fileOut,"%%\n%%\\index{%s|usage}\n%%\n",iterI->m_sGroup.c_str());
 		for (auto iterJ = iterI->m_vConstants.cbegin(); iterJ != iterI->m_vConstants.cend(); iterJ++)
 		{
-			iterJ->DescribeUsefulMacro(fileOut);
+			iterJ->DescribeUsefulMacro(fileOut,iterI->m_sGroup);
 		}
 	}
 
@@ -585,13 +730,19 @@ void Generate(const std::vector<GroupContainer > & i_vGroups)
 			iterJ->DescribeMacro(fileOut);
 		}
 	}
+	fprintf(fileOut,"\\makeatletter\n");
+//	fprintf(fileOut,"%% \\StopEventually{\\init@checksum \\check@checksum}\n");
 	fprintf(fileOut,"%% \\StopEventually{}\n");
 	fprintf(fileOut,"%%\n");
-	fprintf(fileOut,"\\makeatletter\n");
 	fprintf(fileOut,"%% \\section{Implementation}\n");
 	fprintf(fileOut,"%%\n");
 	fprintf(fileOut,"%% \\subsection{Special}\n");
 	fprintf(fileOut,"%%\n");
+	
+	fprintf(fileOut,"%%\\iffalse\n");
+	fprintf(fileOut,"%%<*package>\n");
+	fprintf(fileOut,"%%\\fi\n");
+
 	fprintf(fileOut,"%% \\begin{macro}{\\physconst@decimalsseparator}\n");
 	fprintf(fileOut,"%% |\\physconst@decimalsseparator| is the a special macro used to separate digits\n");
 	fprintf(fileOut,"%% in the decimal portion of the constants. If the option unseparatedecimals is\n"); 
@@ -608,6 +759,10 @@ void Generate(const std::vector<GroupContainer > & i_vGroups)
 	fprintf(fileOut,"%%    \\end{macrocode}\n");
 	fprintf(fileOut,"%% \\end{macro}\n");
 
+	fprintf(fileOut,"%%\\iffalse\n");
+	fprintf(fileOut,"%%</package>\n");
+	fprintf(fileOut,"%%\\fi\n");
+
 	for (auto iterI = i_vGroups.cbegin(); iterI != i_vGroups.cend(); iterI++)
 	{
 		fprintf(fileOut,"%%\n%%\\subsection{%s}\n%%\n",iterI->m_sGroup.c_str());
@@ -618,6 +773,7 @@ void Generate(const std::vector<GroupContainer > & i_vGroups)
 	}
 
 
+	fprintf(fileOut,"%% \\CheckSum{0}\n");
 	fprintf(fileOut,"%% \\Finale\n");
 	fprintf(fileOut,"\\makeatother\n");
 
@@ -642,14 +798,14 @@ int main(void)
 //
 //
 ///////////////////////////////////////////////////////////////////
-	gMass.add(ConstantSet(g_XASTRO.k_dme * 1.0e-3,g_XASTRO.k_dme,g_XASTRO.k_dme * g_XASTRO.k_deV_erg,12,false,"MassElectron","the mass of an electron","CODATA~2018","\\kg","\\gm","\\eV\\,c^{-2}"));
-	gMass.add(ConstantSet(g_XASTRO.k_dmp * 1.0e-3,g_XASTRO.k_dmp,g_XASTRO.k_dmp * g_XASTRO.k_deV_erg,12,false,"MassProton","the mass of a proton","CODATA~2018","\\kg","\\gm","\\eV\\,c^{-2}"));
-	gMass.add(ConstantSet(g_XASTRO.k_dmh * 1.0e-3,g_XASTRO.k_dmh,g_XASTRO.k_dmh * g_XASTRO.k_deV_erg,12,false,"MassHydrogen","the mass of a neutral hydrogen atom","CODATA~2018","\\kg","\\gm","\\eV\\,c^{-2}"));
-	gMass.add(ConstantSet(g_XASTRO.k_dMsun * 1.0e-3,g_XASTRO.k_dMsun,0.0,7,false,"MassSun","the mass of the Sun","IAU~Resolution~B3~2015","\\kg","\\gm","\\eV\\,c^{-2}"));
+	gMass.add(ConstantSet(g_XASTRO.k_dme * 1.0e-3,g_XASTRO.k_dme,g_XASTRO.k_dme * g_XASTRO.k_deV_erg,12,false,"MassElectron","the mass of an electron","CODATA~2018","\\kg","\\gm","\\eV\\,c^{-2}","Electron"));
+	gMass.add(ConstantSet(g_XASTRO.k_dmp * 1.0e-3,g_XASTRO.k_dmp,g_XASTRO.k_dmp * g_XASTRO.k_deV_erg,12,false,"MassProton","the mass of a proton","CODATA~2018","\\kg","\\gm","\\eV\\,c^{-2}","Proton"));
+	gMass.add(ConstantSet(g_XASTRO.k_dmh * 1.0e-3,g_XASTRO.k_dmh,g_XASTRO.k_dmh * g_XASTRO.k_deV_erg,12,false,"MassHydrogen","the mass of a neutral hydrogen atom","CODATA~2018","\\kg","\\gm","\\eV\\,c^{-2}","Hydrogen atom"));
+	gMass.add(ConstantSet(g_XASTRO.k_dMsun * 1.0e-3,g_XASTRO.k_dMsun,0.0,7,false,"MassSun","the mass of the Sun","IAU~Resolution~B3~2015","\\kg","\\gm","\\eV\\,c^{-2}","Sun"));
 //	gMass.add(ConstantSet(g_XASTRO.k_dMearth * 1.0e-3,g_XASTRO.k_dMearth,0.0,12,true,"MassEarth","the mass of the Earth","IAU~Resolution~B3~2015","\\kg","\\gm","\\eV\\,c^{-2}"));
 //	gMass.add(ConstantSet(g_XASTRO.k_dMmoon * 1.0e-3,g_XASTRO.k_dMmoon,0.0,12,true,"MassMoon","the mass of the Moon","IAU~Resolution~B3~2015","\\kg","\\gm","\\eV\\,c^{-2}"));
 //	gMass.add(ConstantSet(g_XASTRO.k_dMjupiter * 1.0e-3,g_XASTRO.k_dMjupiter,0.0,12,true,"MassJupiter","the mass of Jupiter","IAU~Resolution~B3~2015","\\kg","\\gm","\\eV\\,c^{-2}"));
-	gMass.add(ConstantSet(g_XASTRO.k_dAMU_gm * 1.0e-3,g_XASTRO.k_dAMU_gm,g_XASTRO.k_dAMU_gm * g_XASTRO.k_deV_erg,12,false,"MassAMU","the mass of an atomic mass unit","CODATA~2018","\\kg","\\gm","\\eV\\,c^{-2}"));
+	gMass.add(ConstantSet(g_XASTRO.k_dAMU_gm * 1.0e-3,g_XASTRO.k_dAMU_gm,g_XASTRO.k_dAMU_gm * g_XASTRO.k_deV_erg,12,false,"MassAMU","the mass of an atomic mass unit","CODATA~2018","\\kg","\\gm","\\eV\\,c^{-2}","amu"));
 
 ///////////////////////////////////////////////////////////////////
 //
@@ -658,9 +814,9 @@ int main(void)
 //
 //
 ///////////////////////////////////////////////////////////////////
-	gCharge.add(ConstantSet(g_XASTRO.k_dQe,g_XASTRO.k_de,0.0,9,false,"ChargeFundamental","the fundamental charge","CODATA~2018","\\Coulomb","\\esu",nullptr));
-	gCharge.add(ConstantSet(-g_XASTRO.k_dQe,-g_XASTRO.k_de,0.0,9,false,"ChargeElectron","the charge of an electron","CODATA~2018","\\Coulomb","\\esu",nullptr));
-	gCharge.add(ConstantSet(g_XASTRO.k_dQe,g_XASTRO.k_de,0.0,9,false,"ChargeProton","the charge of a proton","CODATA~2018","\\Coulomb","\\esu",nullptr));
+	gCharge.add(ConstantSet(g_XASTRO.k_dQe,g_XASTRO.k_de,0.0,9,false,"ChargeFundamental","the fundamental charge","CODATA~2018","\\Coulomb","\\esu",nullptr,"Elementary"));
+	gCharge.add(ConstantSet(-g_XASTRO.k_dQe,-g_XASTRO.k_de,0.0,9,false,"ChargeElectron","the charge of an electron","CODATA~2018","\\Coulomb","\\esu",nullptr,"Electron"));
+	gCharge.add(ConstantSet(g_XASTRO.k_dQe,g_XASTRO.k_de,0.0,9,false,"ChargeProton","the charge of a proton","CODATA~2018","\\Coulomb","\\esu",nullptr,"Proton"));
 
 ///////////////////////////////////////////////////////////////////
 //
@@ -669,10 +825,10 @@ int main(void)
 //
 //
 ///////////////////////////////////////////////////////////////////
-	gLength.add(ConstantSet(g_XASTRO.k_da0 * 1.0e-2,g_XASTRO.k_da0,0.0,8,false,"RadiusBohr","Bohr radius of an atom","Calculated","\\m","\\cm",nullptr));
-	gLength.add(ConstantSet(g_XASTRO.k_dAU_cm * 1e-2,g_XASTRO.k_dAU_cm,0.0,9,false,"AstronomicalUnit","the astronomical unit (the average distance between the Earth and the Sun)","IAU~Resolution~B2~2012","\\m","\\cm",nullptr));
-	gLength.add(ConstantSet(g_XASTRO.k_dpc_cm * 1e-2,g_XASTRO.k_dpc_cm,0.0,9,false,"Parsec","the length of a parsec ($\\frac{648000\\au}{\\pi}$)","Calculated","\\m","\\cm",nullptr));
-	gLength.add(ConstantSet(g_XASTRO.k_dRsun * 1e-2,g_XASTRO.k_dRsun,0.0,3,false,"RadiusSun","the mean radius of the Sun","IAU~Resolution~B3~2015","\\m","\\cm",nullptr));
+	gLength.add(ConstantSet(g_XASTRO.k_da0 * 1.0e-2,g_XASTRO.k_da0,0.0,8,false,"RadiusBohr","Bohr radius of an atom","Calculated","\\m","\\cm",nullptr,"Bohr Radius"));
+	gLength.add(ConstantSet(g_XASTRO.k_dAU_cm * 1e-2,g_XASTRO.k_dAU_cm,0.0,9,false,"AstronomicalUnit","the astronomical unit (the average distance between the Earth and the Sun)","IAU~Resolution~B2~2012","\\m","\\cm",nullptr,"Astronomical Unit"));
+	gLength.add(ConstantSet(g_XASTRO.k_dpc_cm * 1e-2,g_XASTRO.k_dpc_cm,0.0,9,false,"Parsec","the length of a parsec ($\\frac{648000\\au}{\\pi}$)","Calculated","\\m","\\cm",nullptr,"Parsec"));
+	gLength.add(ConstantSet(g_XASTRO.k_dRsun * 1e-2,g_XASTRO.k_dRsun,0.0,3,false,"RadiusSun","the mean radius of the Sun","IAU~Resolution~B3~2015","\\m","\\cm",nullptr,"Solar Radius"));
 //	gLength.add(ConstantSet(g_XASTRO.k_dRearth * 1e-2,g_XASTRO.k_dRearth,0.0,12,true,"RadiusEarth","the mean radius of the Earth","IAU~Resolution~B3~2015","\\m","\\cm",nullptr));
 //	gLength.add(ConstantSet(g_XASTRO.k_dRmoon * 1e-2,g_XASTRO.k_dRmoon,0.0,12,true,"RadiusMoon","the mean radius of the Moon","IAU~Resolution~B3~2015","\\m","\\cm",nullptr));
 //	gLength.add(ConstantSet(g_XASTRO.k_dRjupiter * 1e-2,g_XASTRO.k_dRjupiter,0.0,12,true,"RadiusJupiter","the mean radius of Jupiter","IAU~Resolution~B3~2015","\\m","\\cm",nullptr));
@@ -685,8 +841,8 @@ int main(void)
 //
 //
 ///////////////////////////////////////////////////////////////////
-	gEnergy.add(ConstantSet(g_XASTRO.k_dRy * 1e-7,g_XASTRO.k_dRy,g_XASTRO.k_dRy_eV,8,false,"Rydberg","the Rydberg energy (the binding energy of Hydrogen)","Calculated","\\Joule","\\erg","\\eV"));
-	gEnergy.add(ConstantSet(g_XASTRO.k_dLsun * 1e-7,g_XASTRO.k_dLsun,0.0,3,false,"LuminositySun","the luminosity of the Sun","IAU~Resolution~B3~2015","\\Watt","\\erg\\Sec^{-1}",nullptr));
+	gEnergy.add(ConstantSet(g_XASTRO.k_dRy * 1e-7,g_XASTRO.k_dRy,g_XASTRO.k_dRy_eV,8,false,"Rydberg","the Rydberg energy (the binding energy of Hydrogen)","Calculated","\\Joule","\\erg","\\eV","Rydberg"));
+	gEnergy.add(ConstantSet(g_XASTRO.k_dLsun * 1e-7,g_XASTRO.k_dLsun,0.0,3,false,"LuminositySun","the luminosity of the Sun","IAU~Resolution~B3~2015","\\Watt","\\erg\\Sec^{-1}",nullptr,"Solar Luminosity"));
 
 ///////////////////////////////////////////////////////////////////
 //
@@ -695,8 +851,8 @@ int main(void)
 //
 //
 ///////////////////////////////////////////////////////////////////
-	gPressure.add(ConstantSet(101325.0,1.01325,0.0,5,false,"PressureAtmosphere","the standard atmospheric pressure","CODATA~2018","\\Pa","\\barP[m]",nullptr));
-	gPressure.add(ConstantSet(100000.0,1.0,0.0,5,false,"PressureStandard","the standard atmospheric pressure","CODATA~2018","\\Pa","\\barP[m]",nullptr));
+	gPressure.add(ConstantSet(101325.0,1.01325,0.0,5,false,"PressureAtmosphere","the standard atmospheric pressure","CODATA~2018","\\Pa","\\barP[m]",nullptr,"Standard Atmosphere"));
+	gPressure.add(ConstantSet(100000.0,1.0,0.0,5,false,"PressureStandard","the standard atmospheric pressure","CODATA~2018","\\Pa","\\barP[m]",nullptr,"Standard Pressure"));
 
 ///////////////////////////////////////////////////////////////////
 //
@@ -705,8 +861,8 @@ int main(void)
 //
 //
 ///////////////////////////////////////////////////////////////////
-	gSpeed.add(ConstantSet(g_XASTRO.k_dc * 1.0e-2,g_XASTRO.k_dc,0.0,8,false,"SpeedLight","the speed of light","CODATA 2018","\\m\\Sec^{-1}","\\cm\\Sec^{-1}",nullptr));
-	gSpeed.add(ConstantSet(g_XASTRO.k_dG * 1.0e-3,g_XASTRO.k_dG,0.0,5,false,"AccelGravity","the accelertion due to gravity at the surface of the Earth","CODATA 2018","\\N\\kg^{-2}\\m^2","\\dyne\\gm^{-2}\\cm^2",nullptr));
+	gSpeed.add(ConstantSet(g_XASTRO.k_dc * 1.0e-2,g_XASTRO.k_dc,0.0,8,false,"SpeedLight","the speed of light","CODATA 2018","\\m\\Sec^{-1}","\\cm\\Sec^{-1}",nullptr,"Speed of Light"));
+	gSpeed.add(ConstantSet(g_XASTRO.k_dG * 1.0e-3,g_XASTRO.k_dG,0.0,5,false,"AccelGravity","the accelertion due to gravity at the surface of the Earth","CODATA 2018","\\N\\kg^{-2}\\m^2","\\dyne\\gm^{-2}\\cm^2",nullptr,"Acceleration due to Gravity"));
 
 ///////////////////////////////////////////////////////////////////
 //
@@ -715,21 +871,21 @@ int main(void)
 //
 //
 ///////////////////////////////////////////////////////////////////
-	gOther.add(ConstantSet(g_XASTRO.k_dc * g_XASTRO.k_dc * 1.0e-7,1.0,0.0,8,false,"Coulomb","the Coulomb constant ($\\frac{1}{4\\pi\\epsilon_0}$) ","Calculated","\\N\\m^2\\Coulomb^{-2}","",nullptr));
-	gOther.add(ConstantSet(8.8541878128e-12,1.0 / (4.0 * g_XASTRO.k_dpi),0.0,10,false,"VacuumPermittivity","the electric permittivity of the vacuum","CODATA~2018","\\Farad\\m^{-1}","",nullptr));
-	gOther.add(ConstantSet(8.8541878128e-12,4.0 * g_XASTRO.k_dpi,0.0,10,false,"VacuumPermeability","the magnetic permeability of the vacuum","CODATA~2018","\\N\\Amp^{-2}","",nullptr));
-	gOther.add(ConstantSet(376.730313668,0.0,0.0,11,true,"VacuumImpedance","the characteristic impedance of the vacuum","CODATA~2018","\\Ohm","",nullptr));
-	gOther.add(ConstantSet(g_XASTRO.k_dKb * 1.0e-7,g_XASTRO.k_dKb,g_XASTRO.k_dKb_eV,6,false,"Boltzmann","the Boltzmann constant","CODATA~2018","\\J\\K^{-1}","\\erg\\K^{-1}","\\eV\\K^{-1}"));
-	gOther.add(ConstantSet(g_XASTRO.k_dh * 1.0e-7,g_XASTRO.k_dh,g_XASTRO.k_dh_eV,8,false,"Planck","the Planck constant","CODATA~2018","\\J\\Sec","\\erg\\Sec","\\eV\\Sec"));
-	gOther.add(ConstantSet(g_XASTRO.k_dhbar * 1.0e-7,g_XASTRO.k_dhbar,g_XASTRO.k_dhbar_eV,8,false,"PlanckReduced","the Reduced Planck constant $\\left(\\frac{h}{2\\pi}\\right)$","Calculated","\\J\\Sec","\\erg\\Sec","\\eV\\Sec"));
-	gOther.add(ConstantSet(g_XASTRO.k_dG * 1.0e-7,g_XASTRO.k_dG,0.0,5,false,"Gravity","Newton's gravitational constant","CODATA~2018","\\N\\kg^{-2}\\m^2","\\dyne\\gm^{-2}\\cm^2",nullptr));
-	gOther.add(ConstantSet(g_XASTRO.k_dSigma_SB * 1.0e-1,g_XASTRO.k_dSigma_SB,0.0,6,false,"StefanBoltzmann","the Stefan-Boltzmann blackbody constant $\\left(\\frac{2\\pi^5k_\\mathrm{B}}{15h^3c^2}\\right)$","Calculated","\\J\\Kelvin^{-4}\\m^{-2}\\Sec^{-1}","\\erg\\Kelvin^{-4}\\cm^{-2}\\Sec^{-1}",nullptr));
+	gOther.add(ConstantSet(g_XASTRO.k_dc * g_XASTRO.k_dc * 1.0e-7,1.0,0.0,8,false,"Coulomb","the Coulomb constant ($\\frac{1}{4\\pi\\epsilon_0}$) ","Calculated","\\N\\m^2\\Coulomb^{-2}","",nullptr,"Coulomb Constant"));
+	gOther.add(ConstantSet(8.8541878128e-12,1.0 / (4.0 * g_XASTRO.k_dpi),0.0,10,false,"VacuumPermittivity","the electric permittivity of the vacuum","CODATA~2018","\\Farad\\m^{-1}","",nullptr,"Vacuum Permittivity"));
+	gOther.add(ConstantSet(8.8541878128e-12,4.0 * g_XASTRO.k_dpi,0.0,10,false,"VacuumPermeability","the magnetic permeability of the vacuum","CODATA~2018","\\N\\Amp^{-2}","",nullptr,"Vacuum Permeability"));
+	gOther.add(ConstantSet(376.730313668,0.0,0.0,11,true,"VacuumImpedance","the characteristic impedance of the vacuum","CODATA~2018","\\Ohm","",nullptr,"Vacuum Impedance"));
+	gOther.add(ConstantSet(g_XASTRO.k_dKb * 1.0e-7,g_XASTRO.k_dKb,g_XASTRO.k_dKb_eV,6,false,"Boltzmann","the Boltzmann constant","CODATA~2018","\\J\\K^{-1}","\\erg\\K^{-1}","\\eV\\K^{-1}","Boltzmann"));
+	gOther.add(ConstantSet(g_XASTRO.k_dh * 1.0e-7,g_XASTRO.k_dh,g_XASTRO.k_dh_eV,8,false,"Planck","the Planck constant","CODATA~2018","\\J\\Sec","\\erg\\Sec","\\eV\\Sec","Planck"));
+	gOther.add(ConstantSet(g_XASTRO.k_dhbar * 1.0e-7,g_XASTRO.k_dhbar,g_XASTRO.k_dhbar_eV,8,false,"PlanckReduced","the Reduced Planck constant $\\left(\\frac{h}{2\\pi}\\right)$","Calculated","\\J\\Sec","\\erg\\Sec","\\eV\\Sec","Reduced Planck"));
+	gOther.add(ConstantSet(g_XASTRO.k_dG * 1.0e-7,g_XASTRO.k_dG,0.0,5,false,"Gravity","Newton's gravitational constant","CODATA~2018","\\N\\kg^{-2}\\m^2","\\dyne\\gm^{-2}\\cm^2",nullptr,"Newton's Gravitational Constant"));
+	gOther.add(ConstantSet(g_XASTRO.k_dSigma_SB * 1.0e-1,g_XASTRO.k_dSigma_SB,0.0,6,false,"StefanBoltzmann","the Stefan-Boltzmann blackbody constant $\\left(\\frac{2\\pi^5k_\\mathrm{B}}{15h^3c^2}\\right)$","Calculated","\\J\\Kelvin^{-4}\\m^{-2}\\Sec^{-1}","\\erg\\Kelvin^{-4}\\cm^{-2}\\Sec^{-1}",nullptr,"Stefan-Boltzmann"));
 //	gOther.add(ConstantSet(g_XASTRO.k_dSigma_Te * 1.0e-4,g_XASTRO.k_dSigma_Te,0.0,5,false,"ThomsonElectron","the Thomson cross-section of the electron $\\left(\\frac{8\\pi}{3}\\frac{q_e^4}{m^2}\\right)$","Calculated","\\m^{-2}","\\cm^{-2}",nullptr));
 //	gOther.add(ConstantSet(g_XASTRO.k_dSigma_Tp * 1.0e-4,g_XASTRO.k_dSigma_Tp,0.0,5,false,"ThomsonProton","the Thomson cross-section of the proton","Calculated","\\m^{-2}","\\cm^{-2}",nullptr));
-	gOther.add(ConstantSet(g_XASTRO.k_da * 1.0e-1,g_XASTRO.k_da,0.0,6,false,"Radiation","the radiation constant, $a \\left(\\frac{8\\pi^5k_\\mathrm{B}^4}{15c^3h^3}\\right)$","Calculated","\\Joule\\m^{-3}\\Kelvin^{-4}","\\erg\\cm^{-3}\\Kelvin^{-4}",nullptr));
-	gOther.add(ConstantSet(g_XASTRO.k_dAlpha,0.0,0.0,8,true,"FineStructure","the fine structure constant","Calculated","",nullptr,nullptr));
-	gOther.add(ConstantSet(1.0 / g_XASTRO.k_dAlpha,0.0,0.0,8,true,"FineStructureReciprocal","the reciprocal of the fine structure constant","Calculated","",nullptr,nullptr));
-	gOther.add(ConstantSet(g_XASTRO.k_dAvogadro,0.0,0.0,8,true,"Avogadro","Avogadro's Number (the number of particles in a mole)","CODATA~2018","",nullptr,nullptr));
+	gOther.add(ConstantSet(g_XASTRO.k_da * 1.0e-1,g_XASTRO.k_da,0.0,6,false,"Radiation","the radiation constant, $a \\left(\\frac{8\\pi^5k_\\mathrm{B}^4}{15c^3h^3}\\right)$","Calculated","\\Joule\\m^{-3}\\Kelvin^{-4}","\\erg\\cm^{-3}\\Kelvin^{-4}",nullptr,"Radiation"));
+	gOther.add(ConstantSet(g_XASTRO.k_dAlpha,0.0,0.0,8,true,"FineStructure","the fine structure constant","Calculated","",nullptr,nullptr,"Fine Structure"));
+	gOther.add(ConstantSet(1.0 / g_XASTRO.k_dAlpha,0.0,0.0,8,true,"FineStructureReciprocal","the reciprocal of the fine structure constant","Calculated","",nullptr,nullptr,"Fine Structure>Reciprocal"));
+	gOther.add(ConstantSet(g_XASTRO.k_dAvogadro,0.0,0.0,8,true,"Avogadro","Avogadro's Number (the number of particles in a mole)","CODATA~2018","",nullptr,nullptr,"Avogadro's Number"));
 
 
 
