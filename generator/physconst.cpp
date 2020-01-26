@@ -95,8 +95,9 @@ public:
 
 ChangeLog g_cChangelog(
 	{
-		ChangelogEntry(2020,1,25,1,0,0,"Initial version"),
-		ChangelogEntry(2020,1,25,1,0,1,"Add options section and fix formatting")
+		ChangelogEntry(2020,1,25,1,0,0,"Initial version."),
+		ChangelogEntry(2020,1,25,1,0,1,"Add options section and fix formatting."),
+		ChangelogEntry(2020,1,26,1,0,2,"External changes for distribution.")
 	}
 );
 
