@@ -38,7 +38,7 @@ instructions.
 - Reordered build, install, distribute, and uninstall sections of the README
 - Pulled build up one level of headings in the README
 - fix some typos in README
-## [1.1.0.0] - 2020/02/03
+## [1.1.0] - 2020/02/03
 ### Added
 - macro for Earth's mass
 - macro for Jupiter's mass
