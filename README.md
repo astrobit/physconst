@@ -68,8 +68,7 @@ The distributables contain the following:
 ## Windows or if make doesn't work
 
 Instructions that might help can be for windows can be found at 
-[this post on StackExchange]
-(https://tex.stackexchange.com/questions/369921/loading-packages-with-ins-and-dtx-files).
+[this post on StackExchange](https://tex.stackexchange.com/questions/369921/loading-packages-with-ins-and-dtx-files).
 1. Compile the `.cpp` file into an executable. For this you will need a c++ 
 compiler such as gnu-c++ or Microsoft Visual C++. Note the dependency on 
 `xastro-1`.
@@ -97,8 +96,7 @@ located.
 ## Windows or if the above doesn't work for linux/max
 1. Build the package as described above.
 1. Instructions that might help can be for windows can be found at 
-[this post on StackExchange]
-(https://tex.stackexchange.com/questions/369921/loading-packages-with-ins-and-dtx-files).
+[this post on StackExchange](https://tex.stackexchange.com/questions/369921/loading-packages-with-ins-and-dtx-files).
 1. Figure out where your LaTeX local packages are installed.
 1. Create a directory named `physunits` in that location.
 1. Copy `physunits.sty` into the new directory.

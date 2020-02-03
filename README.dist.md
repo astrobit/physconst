@@ -57,8 +57,7 @@ change log. e.g. `xelatex physconst.pdf`.
 `xelatex physconst.pdf`.
 
 Instructions that might help can be for windows can be found at 
-[this post on StackExchange]
-(https://tex.stackexchange.com/questions/369921/loading-packages-with-ins-and-dtx-files).
+[this post on StackExchange](https://tex.stackexchange.com/questions/369921/loading-packages-with-ins-and-dtx-files).
 
 # Installation
 First build the project as described above.
@@ -73,8 +72,7 @@ located.
 
 ### Otherwise
 Instructions that might help can be for windows can be found at 
-[this post on StackExchange]
-(https://tex.stackexchange.com/questions/369921/loading-packages-with-ins-and-dtx-files).
+[this post on StackExchange](https://tex.stackexchange.com/questions/369921/loading-packages-with-ins-and-dtx-files).
 1. Figure out where your LaTeX local packages are installed.
 1. Create a directory named `physconst` in that location.
 1. Copy the `.sty` file into the directory you just created.
