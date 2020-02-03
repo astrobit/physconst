@@ -20,7 +20,7 @@ version 2006/05/20 or later.
 at [CTAN](https://ctan.org)
 
 # Build Dependencies
-- the `xastro-1` library (part of [xlibs][https://github.com/astrobit/xlibs])
+- the `xastro-1` library (part of [xlibs](https://github.com/astrobit/xlibs))
 - some LaTeX distribution with `xelatex`.
 - `pkg-config` (if using linux or mac)
 - A c++ compiler (`g++`) with at least c++11
