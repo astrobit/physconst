@@ -972,7 +972,7 @@ void Generate(const std::vector<GroupContainer > & i_vGroups)
 	fprintf(fileOut,"%% The normal macros are the ones that you will typically use, whose values are\n");
 	fprintf(fileOut,"%% determined by the choice of options when the package is invoked.\n");
 	fprintf(fileOut,"%%\n");
-	fprintf(fileOut,"%% \\subsection{Naming Convention}\n");
+	fprintf(fileOut,"%% \\subsubsection{Naming Convention}\n");
 	fprintf(fileOut,"%%\n");
 	fprintf(fileOut,"%% Each macro starts with a lower case `k' to indicate that it is a constant.\n");
 	fprintf(fileOut,"%% If the macro is of special units, e.g. eV, those units will be specified next.\n");
@@ -998,7 +998,7 @@ void Generate(const std::vector<GroupContainer > & i_vGroups)
 	fprintf(fileOut,"%% by physconst to define the macros that are normally used (those described\n");
 	fprintf(fileOut,"%% above.\n");
 	fprintf(fileOut,"%%\n");
-	fprintf(fileOut,"%% \\subsection{NamingConvention}\n");
+	fprintf(fileOut,"%% \\subsubsection{NamingConvention}\n");
 	fprintf(fileOut,"%% The detailed macros are named like \\k@units@precision@name. The units\n");
 	fprintf(fileOut,"%% specify which units the constant is in (SI, cgs, or eV). For constants that\n");
 	fprintf(fileOut,"%% are independent of the unit system (e.g. Avogadro's number and the fine\n"); 
