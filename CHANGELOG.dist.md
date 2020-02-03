@@ -55,5 +55,6 @@ Premeability is now the correct value.
 - Order of magnitude of Newton's Gravity, Boltzmann, Planck, and 
 Stefan-Boltzmann constants were incorrect.
 - Acceleration due to gravity on Earth was accidentally a copy of G instead of g
-
-
+- Corrected formatting of README file.
+- Fixed sections of macros - the individual macros were unintentionally
+subsections of the Naming Conversion
