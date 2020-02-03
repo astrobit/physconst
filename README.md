@@ -16,7 +16,8 @@ and version 1.3c or later is part of all distributions of LaTeX
 version 2006/05/20 or later.
 
 # Dependencies
-- [`physunits` package](https://github.com/astrobit/physunits) also available at [CTAN](https://ctan.org)
+- [`physunits` package](https://github.com/astrobit/physunits) also available 
+at [CTAN](https://ctan.org)
 
 # Build Dependencies
 - the `xastro-1` library (part of [xlibs][https://github.com/astrobit/xlibs])
@@ -52,8 +53,10 @@ The following distributable files can be created as described below.
 ```
 The distributables contain the following:
 ```
-    README.md               A readme with instructions for building and installation
-    makefile                A makefile to simplify building and installation on linux/mac
+    README.md               A readme with instructions for building and 
+                            installation
+    makefile                A makefile to simplify building and installation on 
+                            linux/mac
     physconst.ins           The installer file
     physconst.dtx           The package code and documentation
     physconst.pdf           Usage documentation
@@ -64,21 +67,28 @@ The distributables contain the following:
 1. `make` to generate the package
 ## Windows or if make doesn't work
 
-Instructions that might help can be for windows can be found at [this post on StackExchange](https://tex.stackexchange.com/questions/369921/loading-packages-with-ins-and-dtx-files).
-1. Compile the `.cpp` file into an executable. For this you will need a c++ compiler such as gnu-c++ or Microsoft Visual C++. Note the dependency on `xastro-1`.
+Instructions that might help can be for windows can be found at 
+[this post on StackExchange]
+(https://tex.stackexchange.com/questions/369921/loading-packages-with-ins-and-dtx-files).
+1. Compile the `.cpp` file into an executable. For this you will need a c++ 
+compiler such as gnu-c++ or Microsoft Visual C++. Note the dependency on 
+`xastro-1`.
 1. Generate the `.dtx` file using the executable you just created.
 1. Run `latex` on physunits.ins
 1. Run `latex` of some form (e.g. `xelatex`) on `physunits.dtx`
 1. Run `makeindex -s gind.ist -o physunits.ind physunits.idx`
 1. Run `makeindex -s gglo.ist -o $(pkgname).gls $(pkgname).glo`
-1. Run `latex` of some form (e.g. `xelatex`) on `physunits.dtx` to create the index
-1. Run `latex` of some form (e.g. `xelatex`) on `physunits.dtx` to get the right links and labels.
+1. Run `latex` of some form (e.g. `xelatex`) on `physunits.dtx` to create the
+index
+1. Run `latex` of some form (e.g. `xelatex`) on `physunits.dtx` to get the right
+links and labels.
 
 # Installation
 ## Linux / mac
 ### For a single project
 1. Build the package as described above.
-1. Copy the `physunits.sty` into your project where your `.tex` files are located.
+1. Copy the `physunits.sty` into your project where your `.tex` files are 
+located.
 ### for all users and projects
 1. Build the package as described above.
 1. `make localinstall` to generate the package.
@@ -86,7 +96,9 @@ Instructions that might help can be for windows can be found at [this post on St
 
 ## Windows or if the above doesn't work for linux/max
 1. Build the package as described above.
-1. Instructions that might help can be for windows can be found at [this post on StackExchange](https://tex.stackexchange.com/questions/369921/loading-packages-with-ins-and-dtx-files).
+1. Instructions that might help can be for windows can be found at 
+[this post on StackExchange]
+(https://tex.stackexchange.com/questions/369921/loading-packages-with-ins-and-dtx-files).
 1. Figure out where your LaTeX local packages are installed.
 1. Create a directory named `physunits` in that location.
 1. Copy `physunits.sty` into the new directory.
@@ -117,7 +129,8 @@ To create a disribution on linux (or mac?)
 ## Windows or if make doesn't work
 1. Build the package as described above.
 1. Create a directory named `physunits`
-1. Copy `physunits.ins`, `physunits.dtx`, `physunits.pdf`, and `CHANGELOG.md` into the directory
+1. Copy `physunits.ins`, `physunits.dtx`, `physunits.pdf`, and `CHANGELOG.md` 
+into the directory
 1. Copy `README.dist.md` into the directory as `README.md`
 1. Copy `makefile.dist` into the directory as `makefile`
 1. Create a `.zip` file from the directory.
