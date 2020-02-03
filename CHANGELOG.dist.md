@@ -46,14 +46,12 @@ instructions.
 - macro for Jupiter's radius
 - distribution specific change log
 - Numeric variant of each constant for use with e.g. tikz
-- Individual change log for each macro
 ### Changes
 - Colomb constant in SI units had an incorrect magnitude; fixed to 10^9 instead 
 of 10^14
 - Vacuum permeability was incorrectly a duplicate of the permittivity.
 Premeability is now the correct value.
 - Mass of particles in eV was being computed incorrectly. Fixed values.
-- modified makefile to place distribution specific changelog 
 - Order of magnitude of Newton's Gravity, Boltzmann, Planck, and 
 Stefan-Boltzmann constants were incorrect.
 - Acceleration due to gravity on Earth was accidentally a copy of G instead of g

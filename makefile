@@ -101,7 +101,7 @@ distuninstall:
 	cp $(pkgname).ins $(pkgname)/.
 	cp README.dist.md $(pkgname)/README.md
 	cp makefile.dist $(pkgname)/makefile
-	cp CHANGELOG.md $(pkgname)/.
+	cp CHANGELOG.dist.md $(pkgname)/CHANGELOG.md
 	tar -cvf $(pkgname).tar $(pkgname)
 	rm -r $(pkgname)
 
@@ -115,7 +115,7 @@ distuninstall:
 	cp $(pkgname).ins $(pkgname)/.
 	cp README.dist.md $(pkgname)/README.md
 	cp makefile.dist $(pkgname)/makefile
-	cp CHANGELOG.md $(pkgname)/.
+	cp CHANGELOG.dist.md $(pkgname)/CHANGELOG.md
 	zip -r $(pkgname).zip $(pkgname)
 	rm -r $(pkgname)
 
