@@ -55,6 +55,14 @@ Premeability is now the correct value.
 - Order of magnitude of Newton's Gravity, Boltzmann, Planck, and 
 Stefan-Boltzmann constants were incorrect.
 - Acceleration due to gravity on Earth was accidentally a copy of G instead of g
+- Acceleration due to gravity on Earth had the wrong units
 - Corrected formatting of README file.
 - Fixed sections of macros - the individual macros were unintentionally
 subsections of the Naming Conversion
+## [1.1.1] - 2020/03/26
+### Changes
+- The shortconst option was having the opposite of the intended effect. When
+not specified, constants were appearing with reduced precision, and when 
+specified, constants had full precision. Fixed operation to be as intended.
+- Corrected changelog (in the .pdf) and overall version of the file to 
+correctly be 1.1.x instead of 1.0.2

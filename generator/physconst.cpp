@@ -97,8 +97,9 @@ ChangeLog g_cChangelog(
 	{
 		ChangelogEntry(2020,1,25,1,0,0,"Initial version."),
 		ChangelogEntry(2020,1,25,1,0,1,"Add options section and fix formatting."),
-		ChangelogEntry(2020,1,26,1,0,2,"External changes for distribution.")
-//		ChangelogEntry(2020,2,3,1,1,0,"Add Earth, Sun, Jupiter mass and radius, fix Coulomb constant.")
+		ChangelogEntry(2020,1,26,1,0,2,"External changes for distribution."),
+		ChangelogEntry(2020,2,3,1,1,0,"Add Earth, Sun, Jupiter mass and radius, fix Coulomb constant."),
+		ChangelogEntry(2020,3,26,1,1,1,"Fixed bug that shortconst was having the opposite effect than intended.")
 	}
 );
 
@@ -637,9 +638,9 @@ public:
 			}
 			fprintf(io_fOut,".\n%%\n%%    \\begin{macrocode}\n");
 			fprintf(io_fOut,"\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\k%s}{%%\n",m_sName.c_str());
-			fprintf(io_fOut,"\\k@short@%s}\n",m_sName.c_str());
-			fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\k%s}{%%\n",m_sName.c_str());
 			fprintf(io_fOut,"\\k@full@%s}\n",m_sName.c_str());
+			fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\k%s}{%%\n",m_sName.c_str());
+			fprintf(io_fOut,"\\k@short@%s}\n",m_sName.c_str());
 			fprintf(io_fOut,"\\fi\n");
 
 			fprintf(io_fOut,"%%    \\end{macrocode}\n%% \\end{macro}\n%%\n");
@@ -669,13 +670,13 @@ public:
 			}
 			fprintf(io_fOut,".\n%%\n%%    \\begin{macrocode}\n");
 			fprintf(io_fOut,"\\ifx\\cgsunits\\undefined\n\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\k%s}{%%\n",m_sName.c_str());
-			fprintf(io_fOut,"\\k@SI@short@%s}\n",m_sName.c_str());
-			fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\k%s}{%%\n",m_sName.c_str());
 			fprintf(io_fOut,"\\k@SI@full@%s}\n",m_sName.c_str());
-			fprintf(io_fOut,"\\fi\n\\else\n\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\k%s}{%%\n",m_sName.c_str());
-			fprintf(io_fOut,"\\k@cgs@short@%s}\n",m_sName.c_str());
 			fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\k%s}{%%\n",m_sName.c_str());
+			fprintf(io_fOut,"\\k@SI@short@%s}\n",m_sName.c_str());
+			fprintf(io_fOut,"\\fi\n\\else\n\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\k%s}{%%\n",m_sName.c_str());
 			fprintf(io_fOut,"\\k@cgs@full@%s}\n",m_sName.c_str());
+			fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\k%s}{%%\n",m_sName.c_str());
+			fprintf(io_fOut,"\\k@cgs@short@%s}\n",m_sName.c_str());
 			fprintf(io_fOut,"\\fi\n\\fi\n");
 
 			fprintf(io_fOut,"%%    \\end{macrocode}\n%% \\end{macro}\n%%\n");
@@ -705,9 +706,9 @@ public:
 				}
 				fprintf(io_fOut,".\n%%\n%%    \\begin{macrocode}\n");
 				fprintf(io_fOut,"\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\keV%s}{%%\n",m_sName.c_str());
-				fprintf(io_fOut,"\\k@eV@short@%s}\n",m_sName.c_str());
-				fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\keV%s}{%%\n",m_sName.c_str());
 				fprintf(io_fOut,"\\k@eV@full@%s}\n",m_sName.c_str());
+				fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\keV%s}{%%\n",m_sName.c_str());
+				fprintf(io_fOut,"\\k@eV@short@%s}\n",m_sName.c_str());
 				fprintf(io_fOut,"\\fi\n");
 
 				fprintf(io_fOut,"%%    \\end{macrocode}\n%% \\end{macro}\n%%\n");
@@ -746,9 +747,9 @@ public:
 			}
 			fprintf(io_fOut,".\n%%\n%%    \\begin{macrocode}\n");
 			fprintf(io_fOut,"\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\k%sNumeric}{%%\n",m_sName.c_str());
-			fprintf(io_fOut,"\\k@short@%sNumeric}\n",m_sName.c_str());
-			fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\k%sNumeric}{%%\n",m_sName.c_str());
 			fprintf(io_fOut,"\\k@full@%sNumeric}\n",m_sName.c_str());
+			fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\k%sNumeric}{%%\n",m_sName.c_str());
+			fprintf(io_fOut,"\\k@short@%sNumeric}\n",m_sName.c_str());
 			fprintf(io_fOut,"\\fi\n");
 
 			fprintf(io_fOut,"%%    \\end{macrocode}\n%% \\end{macro}\n%%\n");
@@ -778,13 +779,13 @@ public:
 			}
 			fprintf(io_fOut,".\n%%\n%%    \\begin{macrocode}\n");
 			fprintf(io_fOut,"\\ifx\\cgsunits\\undefined\n\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\k%sNumeric}{%%\n",m_sName.c_str());
-			fprintf(io_fOut,"\\k@SI@short@%sNumeric}\n",m_sName.c_str());
-			fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\k%sNumeric}{%%\n",m_sName.c_str());
 			fprintf(io_fOut,"\\k@SI@full@%sNumeric}\n",m_sName.c_str());
-			fprintf(io_fOut,"\\fi\n\\else\n\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\k%sNumeric}{%%\n",m_sName.c_str());
-			fprintf(io_fOut,"\\k@cgs@short@%sNumeric}\n",m_sName.c_str());
 			fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\k%sNumeric}{%%\n",m_sName.c_str());
+			fprintf(io_fOut,"\\k@SI@short@%sNumeric}\n",m_sName.c_str());
+			fprintf(io_fOut,"\\fi\n\\else\n\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\k%sNumeric}{%%\n",m_sName.c_str());
 			fprintf(io_fOut,"\\k@cgs@full@%sNumeric}\n",m_sName.c_str());
+			fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\k%sNumeric}{%%\n",m_sName.c_str());
+			fprintf(io_fOut,"\\k@cgs@short@%sNumeric}\n",m_sName.c_str());
 			fprintf(io_fOut,"\\fi\n\\fi\n");
 
 			fprintf(io_fOut,"%%    \\end{macrocode}\n%% \\end{macro}\n%%\n");
@@ -814,9 +815,9 @@ public:
 				}
 				fprintf(io_fOut,".\n%%\n%%    \\begin{macrocode}\n");
 				fprintf(io_fOut,"\\ifx\\shortconst\\undefined\n\\DeclareRobustCommand {\\keV%sNumeric}{%%\n",m_sName.c_str());
-				fprintf(io_fOut,"\\k@eV@short@%sNumeric}\n",m_sName.c_str());
-				fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\keV%sNumeric}{%%\n",m_sName.c_str());
 				fprintf(io_fOut,"\\k@eV@full@%sNumeric}\n",m_sName.c_str());
+				fprintf(io_fOut,"\\else\n\\DeclareRobustCommand {\\keV%sNumeric}{%%\n",m_sName.c_str());
+				fprintf(io_fOut,"\\k@eV@short@%sNumeric}\n",m_sName.c_str());
 				fprintf(io_fOut,"\\fi\n");
 
 				fprintf(io_fOut,"%%    \\end{macrocode}\n%% \\end{macro}\n%%\n");
@@ -1170,7 +1171,8 @@ int main(void)
 	);
 	ChangeLog cAccelGravity(
 	{
-		ChangelogEntry(2020,2,3,1,1,0,"Correct value.")
+		ChangelogEntry(2020,2,3,1,1,0,"Correct value."),
+		ChangelogEntry(2020,2,3,1,1,0,"Fix units."),
 	}
 	);
 
@@ -1246,7 +1248,7 @@ int main(void)
 //
 ///////////////////////////////////////////////////////////////////
 	gSpeed.add(ConstantSet(g_XASTRO.k_dc * 1.0e-2,g_XASTRO.k_dc,0.0,8,false,"SpeedLight","the speed of light","CODATA 2018","\\m\\Sec^{-1}","\\cm\\Sec^{-1}",nullptr,&cEmpty,"Speed of Light"));
-	gSpeed.add(ConstantSet(9.80665,980.665,0.0,5,false,"AccelGravity","the accelertion due to gravity at the surface of the Earth","CODATA 2018","\\N\\kg^{-2}\\m^2","\\dyne\\gm^{-2}\\cm^2",nullptr,&cAccelGravity,"Acceleration due to Gravity"));
+	gSpeed.add(ConstantSet(9.80665,980.665,0.0,5,false,"AccelGravity","the accelertion due to gravity at the surface of the Earth","CODATA 2018","\\m\\Sec^{-2}","\\cm\\Sec^{-2}",nullptr,&cAccelGravity,"Acceleration due to Gravity"));
 
 ///////////////////////////////////////////////////////////////////
 //
