@@ -35,6 +35,7 @@ at [CTAN](https://ctan.org)
     README.md               This file.
     README.dist.md          A readme better suited for the distribution.
     CHANGELOG.md            List of changes
+    CHANGELOG.dist.md       A list of changes suited for the distribution.
     physconst.ins           The installer file
     makefile                GNU makefile to create and install the package
     generator/makefile      GNU makefile to create the generator
@@ -55,6 +56,7 @@ The distributables contain the following:
 ```
     README.md               A readme with instructions for building and 
                             installation
+    CHANGELOG.md            List of changes
     makefile                A makefile to simplify building and installation on 
                             linux/mac
     physconst.ins           The installer file
