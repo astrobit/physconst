@@ -130,6 +130,7 @@ To create a disribution on linux (or mac?)
 1. Copy `physunits.ins`, `physunits.dtx`, `physunits.pdf`, and `CHANGELOG.md` 
 into the directory
 1. Copy `README.dist.md` into the directory as `README.md`
+1. Copy `CHANGELOG.dist.md` into the directory as `CHANGELOG.md`
 1. Copy `makefile.dist` into the directory as `makefile`
 1. Create a `.zip` file from the directory.
 
