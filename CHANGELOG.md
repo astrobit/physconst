@@ -77,3 +77,5 @@ correctly be 1.1.x instead of 1.0.2
 introduction.
 - Updated the readme to include copying CHANGELOG.dist.md into the package 
 folder for the instructions for creating a dist.
+- corrected README to include changelog in the listof included files.
+
