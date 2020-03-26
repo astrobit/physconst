@@ -99,7 +99,7 @@ ChangeLog g_cChangelog(
 		ChangelogEntry(2020,1,25,1,0,1,"Add options section and fix formatting."),
 		ChangelogEntry(2020,1,26,1,0,2,"External changes for distribution."),
 		ChangelogEntry(2020,2,3,1,1,0,"Add Earth, Sun, Jupiter mass and radius, fix Coulomb constant."),
-		ChangelogEntry(2020,3,26,1,1,1,"Fixed bug that shortconst was having the opposite effect than intended.")
+		ChangelogEntry(2020,3,26,1,1,1,"Fixed bug that shortconst was having the opposite effect than intended. Additions and corrections to documentation.")
 	}
 );
 
@@ -935,6 +935,13 @@ void Generate(const std::vector<GroupContainer > & i_vGroups)
 	fprintf(fileOut,"%% \\setlength{\\parskip}{1em}\n");
 	fprintf(fileOut,"%%\n");
 	fprintf(fileOut,"%% \\section{Introduction}\n");
+	ChangeLog cChangeLogIntroduction(
+		{
+			ChangelogEntry(2020,3,26,1,1,1,"Corrected source of astronomical constants within the introduction.")
+		}
+	);
+	cChangeLogIntroduction.print(fileOut);
+
 	fprintf(fileOut,"%%\n");
 	fprintf(fileOut,"%%\n"); 
 	fprintf(fileOut,"%% This package consists of several macros that are shorthand for a variety of\n");
@@ -947,9 +954,10 @@ void Generate(const std::vector<GroupContainer > & i_vGroups)
 	fprintf(fileOut,"%% classroom settings, homework assignments, etc.\n");
 	fprintf(fileOut,"%%\n");
 	fprintf(fileOut,"%% Most constants are taken from CODATA 2018, with the exception of the\n"); 
-	fprintf(fileOut,"%% astronomical objects, whose values are taken from their current wikipedia\n");
-	fprintf(fileOut,"%% entries. If you have an interest and/or need for more reliable data, \n");
-	fprintf(fileOut,"%% please contact me.\n");
+	fprintf(fileOut,"%% astronomical objects, whose values are taken from International Astronomical\n");
+	fprintf(fileOut,"%% Union specified values. Constants that are derived from true constants, e.g.\n");
+	fprintf(fileOut,"%% the fine structure constant, have been calculated using the accepted values\n");
+	fprintf(fileOut,"%% of the fundamental constants.\n");
 	fprintf(fileOut,"%%\n%%\\subsection{Options}\n%%\n");
 	fprintf(fileOut,"%% There are three options available: |shortconst|, |cgs|, and \n");
 	fprintf(fileOut,"%% |unseparatedecimals|.\n");
@@ -967,8 +975,53 @@ void Generate(const std::vector<GroupContainer > & i_vGroups)
 	fprintf(fileOut,"%% decimal portion of full precision constants. E.g. the elementary charge \n");
 	fprintf(fileOut,"%% would appear as $1.602176634\\times10^{-19}\\Coulomb$ instead of\n");
 	fprintf(fileOut,"%% $1.602\\,176\\,634\\times10^{-19}\\Coulomb$. (notice the gaps between digits\n");
-	fprintf(fileOut,"%% in the latter.\n");
-	fprintf(fileOut,"%%\n%%\\subsection{Macros}\n%%\n");
+	fprintf(fileOut,"%% in the latter.)\n");
+	fprintf(fileOut,"%%\n");
+	fprintf(fileOut,"%% \\section{Prerequisites / Dependencies}\n");
+	ChangeLog cChangeLogDependencies(
+		{
+			ChangelogEntry(2020,3,26,1,1,1,"Added section for dependencies.")
+		}
+	);
+	cChangeLogDependencies.print(fileOut);
+	fprintf(fileOut,"%%\n");
+	fprintf(fileOut,"%% \\subsection{General}\n");
+	fprintf(fileOut,"%% This package requires the \\verb|physunits| package.");
+	fprintf(fileOut,"%%\n"); 
+	fprintf(fileOut,"%% \\subsection{Generating Documentation}\n");
+	fprintf(fileOut,"%% \\verb|hyperref|, \\verb|xcolor|, \\verb|mdframed|, and \n");
+	fprintf(fileOut,"%% \\verb|imakeidx| packages are required to generate the documentation\n");
+	fprintf(fileOut,"%% (this file) for this package.\n");
+	fprintf(fileOut,"%%\n"); 
+	fprintf(fileOut,"%% \\section{Acknowledgements}\n");
+	ChangeLog cChangeLogAcknowledgements(
+		{
+			ChangelogEntry(2020,3,26,1,1,1,"Added section for acknowledgements.")
+		}
+	);
+	cChangeLogAcknowledgements.print(fileOut);
+	fprintf(fileOut,"%%\n");
+	fprintf(fileOut,"%% The author would like to thank Dr. Florian Leupold for catching a glaring\n");
+	fprintf(fileOut,"%% error in the shortconst option.");
+	fprintf(fileOut,"%%\n"); 
+	fprintf(fileOut,"%% \\section{Bug Reporting}\n");
+	ChangeLog cChangeLogBugReporting(
+		{
+			ChangelogEntry(2020,3,26,1,1,1,"Added section for bug reporting.")
+		}
+	);
+	cChangeLogBugReporting.print(fileOut);
+	fprintf(fileOut,"%%\n");
+	fprintf(fileOut,"%% Please report bugs or issues in this package using github, at\n");
+	fprintf(fileOut,"%% \\url{https://github.com/astrobit/physconst/issues}.");
+	fprintf(fileOut,"%%\n"); 
+	fprintf(fileOut,"%%\n%%\\section{Macros}\n%%\n");
+	ChangeLog cChangeLogMacros(
+		{
+			ChangelogEntry(2020,3,26,1,1,1,"Upgraded macros to a section instead of a subsection.")
+		}
+	);
+	cChangeLogMacros.print(fileOut);
 	fprintf(fileOut,"%%\n%%\\subsection{Normal Macros}\n%%\n");
 	fprintf(fileOut,"%% The normal macros are the ones that you will typically use, whose values are\n");
 	fprintf(fileOut,"%% determined by the choice of options when the package is invoked.\n");

@@ -62,9 +62,18 @@ Stefan-Boltzmann constants were incorrect.
 - Fixed sections of macros - the individual macros were unintentionally
 subsections of the Naming Conversion
 ## [1.1.1.0] - 2020/03/26
+### Added
+- Acknowledgements section of documentation
+- Bug reporting section of documentation
+- Prerequisites / Dependencies section of documentation
 ### Changes
 - The shortconst option was having the opposite of the intended effect. When
 not specified, constants were appearing with reduced precision, and when 
 specified, constants had full precision. Fixed operation to be as intended.
 - Corrected changelog (in the .pdf) and overall version of the file to 
 correctly be 1.1.x instead of 1.0.2
+- Upgraded macros subsection to section (this was a prior bug).
+- Corrected the description of the source of astronomical constants within the
+introduction.
+- Updated the readme to include copying CHANGELOG.dist.md into the package 
+folder for the instructions for creating a dist.
