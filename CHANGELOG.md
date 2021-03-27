@@ -78,4 +78,8 @@ introduction.
 - Updated the readme to include copying CHANGELOG.dist.md into the package 
 folder for the instructions for creating a dist.
 - corrected README to include changelog in the listof included files.
+## [1.1.2.0] - 2021/03/26
+### Changes
+- Corrected Avogadro's Number - there was a typo in the value.
+
 

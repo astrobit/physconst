@@ -99,7 +99,8 @@ ChangeLog g_cChangelog(
 		ChangelogEntry(2020,1,25,1,0,1,"Add options section and fix formatting."),
 		ChangelogEntry(2020,1,26,1,0,2,"External changes for distribution."),
 		ChangelogEntry(2020,2,3,1,1,0,"Add Earth, Sun, Jupiter mass and radius, fix Coulomb constant."),
-		ChangelogEntry(2020,3,26,1,1,1,"Fixed bug that shortconst was having the opposite effect than intended. Additions and corrections to documentation.")
+		ChangelogEntry(2020,3,26,1,1,1,"Fixed bug that shortconst was having the opposite effect than intended. Additions and corrections to documentation."),
+		ChangelogEntry(2021,3,26,1,1,2,"Corrected the value for Avogadro's Number. Prior version had a typo.")
 	}
 );
 
@@ -1002,7 +1003,8 @@ void Generate(const std::vector<GroupContainer > & i_vGroups)
 	cChangeLogAcknowledgements.print(fileOut);
 	fprintf(fileOut,"%%\n");
 	fprintf(fileOut,"%% The author would like to thank Dr. Florian Leupold for catching a glaring\n");
-	fprintf(fileOut,"%% error in the shortconst option.");
+	fprintf(fileOut,"%% error in the shortconst option, and M. Kloske for catching a typo in\n");
+	fprintf(fileOut,"%% Avogadro's Number.\n");
 	fprintf(fileOut,"%%\n"); 
 	fprintf(fileOut,"%% \\section{Bug Reporting}\n");
 	ChangeLog cChangeLogBugReporting(

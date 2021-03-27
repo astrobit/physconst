@@ -73,4 +73,7 @@ correctly be 1.1.x instead of 1.0.2
 - Upgraded macros subsection to section (this was a prior bug).
 - Corrected the description of the source of astronomical constants within the
 introduction.
+## [1.1.2] - 2021/03/26
+### Changes
+- Corrected Avogadro's Number - there was a typo in the value.
 
