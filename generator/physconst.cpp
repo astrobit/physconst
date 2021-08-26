@@ -100,7 +100,8 @@ ChangeLog g_cChangelog(
 		ChangelogEntry(2020,1,26,1,0,2,"External changes for distribution."),
 		ChangelogEntry(2020,2,3,1,1,0,"Add Earth, Sun, Jupiter mass and radius, fix Coulomb constant."),
 		ChangelogEntry(2020,3,26,1,1,1,"Fixed bug that shortconst was having the opposite effect than intended. Additions and corrections to documentation."),
-		ChangelogEntry(2021,3,26,1,1,2,"Corrected the value for Avogadro's Number. Prior version had a typo.")
+		ChangelogEntry(2021,3,26,1,1,2,"Corrected the value for Avogadro's Number. Prior version had a typo."),
+		ChangelogEntry(2021,8,26,1,2,0,"Allow Earth mass and Jupiter mass to be specified in cgs and eV, and Solar mass in eV.")
 	}
 );
 
@@ -1135,9 +1136,15 @@ int main(void)
 	GroupContainer gSpeed("Velocity, Speed and Acceleration");
 	GroupContainer gOther("Other Constants");
 	ChangeLog cEmpty;
+	ChangeLog cSunMass(
+	{
+		ChangelogEntry(2021,8,26,1,2,0,"Allow mass of Sun to be in eV")
+	}
+	);
 	ChangeLog cEarthMass(
 	{
-		ChangelogEntry(2020,2,3,1,1,0,"Add mass of Earth")
+		ChangelogEntry(2020,2,3,1,1,0,"Add mass of Earth"),
+		ChangelogEntry(2021,8,26,1,2,0,"Allow mass of Earth to be in cgs or eV")
 	}
 	);
 	ChangeLog cEarthRadius(
@@ -1147,7 +1154,8 @@ int main(void)
 	);
 	ChangeLog cJupiterMass(
 	{
-		ChangelogEntry(2020,2,3,1,1,0,"Add mass of Jupiter")
+		ChangelogEntry(2020,2,3,1,1,0,"Add mass of Jupiter"),
+		ChangelogEntry(2021,8,26,1,2,0,"Allow mass of Jupiter to be in cgs or eV")
 	}
 	);
 	ChangeLog cJupiterRadius(
@@ -1242,10 +1250,10 @@ int main(void)
 	gMass.add(ConstantSet(g_XASTRO.k_dme * 1.0e-3,g_XASTRO.k_dme,g_XASTRO.k_dme * g_XASTRO.k_deV_erg * g_XASTRO.k_dc * g_XASTRO.k_dc,12,false,"MassElectron","the mass of an electron","CODATA~2018","\\kg","\\gm","\\eV\\,c^{-2}",&cMassElectron,"Electron"));
 	gMass.add(ConstantSet(g_XASTRO.k_dmp * 1.0e-3,g_XASTRO.k_dmp,g_XASTRO.k_dmp * g_XASTRO.k_deV_erg * g_XASTRO.k_dc * g_XASTRO.k_dc,12,false,"MassProton","the mass of a proton","CODATA~2018","\\kg","\\gm","\\eV\\,c^{-2}",&cMassProton,"Proton"));
 	gMass.add(ConstantSet(g_XASTRO.k_dmh * 1.0e-3,g_XASTRO.k_dmh,g_XASTRO.k_dmh * g_XASTRO.k_deV_erg * g_XASTRO.k_dc * g_XASTRO.k_dc,12,false,"MassHydrogen","the mass of a neutral hydrogen atom","CODATA~2018","\\kg","\\gm","\\eV\\,c^{-2}",&cMassHydrogen,"Hydrogen atom"));
-	gMass.add(ConstantSet(g_XASTRO.k_dMsun * 1.0e-3,g_XASTRO.k_dMsun,0.0,7,false,"MassSun","the mass of the Sun","IAU~Resolution~B3~2015","\\kg","\\gm","\\eV\\,c^{-2}",&cEmpty,"Sun"));
-	gMass.add(ConstantSet(g_XASTRO.k_dMearth * 1.0e-3,g_XASTRO.k_dMearth,0.0,6,true,"MassEarth","the mass of the Earth","IAU~Resolution~B3~2015","\\kg","\\gm","\\eV\\,c^{-2}",&cEarthMass));
+	gMass.add(ConstantSet(g_XASTRO.k_dMsun * 1.0e-3,g_XASTRO.k_dMsun,g_XASTRO.k_dMsun * g_XASTRO.k_deV_erg * g_XASTRO.k_dc * g_XASTRO.k_dc,7,false,"MassSun","the mass of the Sun","IAU~Resolution~B3~2015","\\kg","\\gm","\\eV\\,c^{-2}",&cSunMass,"Sun"));
+	gMass.add(ConstantSet(g_XASTRO.k_dMearth * 1.0e-3,g_XASTRO.k_dMearth,g_XASTRO.k_dMearth * g_XASTRO.k_deV_erg * g_XASTRO.k_dc * g_XASTRO.k_dc,6,false,"MassEarth","the mass of the Earth","IAU~Resolution~B3~2015","\\kg","\\gm","\\eV\\,c^{-2}",&cEarthMass));
 //	gMass.add(ConstantSet(g_XASTRO.k_dMmoon * 1.0e-3,g_XASTRO.k_dMmoon,0.0,12,true,"MassMoon","the mass of the Moon","IAU~Resolution~B3~2015","\\kg","\\gm","\\eV\\,c^{-2}"));
-	gMass.add(ConstantSet(g_XASTRO.k_dMjupiter * 1.0e-3,g_XASTRO.k_dMjupiter,0.0,7,true,"MassJupiter","the mass of Jupiter","IAU~Resolution~B3~2015","\\kg","\\gm","\\eV\\,c^{-2}",&cJupiterMass));
+	gMass.add(ConstantSet(g_XASTRO.k_dMjupiter * 1.0e-3,g_XASTRO.k_dMjupiter,g_XASTRO.k_dMjupiter * g_XASTRO.k_deV_erg * g_XASTRO.k_dc * g_XASTRO.k_dc,7,false,"MassJupiter","the mass of Jupiter","IAU~Resolution~B3~2015","\\kg","\\gm","\\eV\\,c^{-2}",&cJupiterMass));
 	gMass.add(ConstantSet(g_XASTRO.k_dAMU_gm * 1.0e-3,g_XASTRO.k_dAMU_gm,g_XASTRO.k_dAMU_gm * g_XASTRO.k_deV_erg * g_XASTRO.k_dc * g_XASTRO.k_dc,12,false,"MassAMU","the mass of an atomic mass unit","CODATA~2018","\\kg","\\gm","\\eV\\,c^{-2}",&cAMU,"amu"));
 
 ///////////////////////////////////////////////////////////////////

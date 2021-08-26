@@ -81,5 +81,12 @@ folder for the instructions for creating a dist.
 ## [1.1.2.0] - 2021/03/26
 ### Changes
 - Corrected Avogadro's Number - there was a typo in the value.
-
+## [1.2.0.0] - 2021/08/26
+### Changes
+- Specified mass of Sun in eV (instead of 0)
+### Added
+- Mass of Earth in cgs
+- Mass of Earth in eV
+- Mass of Jupiter in cgs
+- Mass of Jupiter in eV
 
